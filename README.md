@@ -1,3 +1,14 @@
+# Demo Microservices App (Spring Petclinic)
+
+Fork of **spring-petclinic-microservices** used as a simple workload to showcase **DevOps**, **containers**, **Kubernetes**, and **GitOps (Argo CD)**.
+
+What I demonstrate here:
+- Build & push images for each microservice via **GitHub Actions** (or **Azure DevOps**) using reusable templates from my `platform-pipelines` repo
+- Declarative deployment via **Argo CD**
+- Promotion by **PR**: dev → prod through the GitOps repo
+
+Original project: https://github.com/spring-petclinic/spring-petclinic-microservices
+
 # Distributed version of the Spring PetClinic Sample Application built with Spring Cloud and Spring AI
 
 [![Build Status](https://github.com/spring-petclinic/spring-petclinic-microservices/actions/workflows/maven-build.yml/badge.svg)](https://github.com/spring-petclinic/spring-petclinic-microservices/actions/workflows/maven-build.yml)
