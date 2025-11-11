@@ -64,13 +64,13 @@ jobs:
             )
           else
             modules=()
-            [[ "${{ steps.changes.outputs.admin }}"      == "true" ]] && modules+=(spring-petclinic-admin-server)
-            [[ "${{ steps.changes.outputs.api_gateway }}"== "true" ]] && modules+=(spring-petclinic-api-gateway)
-            [[ "${{ steps.changes.outputs.config }}"     == "true" ]] && modules+=(spring-petclinic-config-server)
-            [[ "${{ steps.changes.outputs.discovery }}"  == "true" ]] && modules+=(spring-petclinic-discovery-server)
-            [[ "${{ steps.changes.outputs.customers }}"  == "true" ]] && modules+=(spring-petclinic-customers-service)
-            [[ "${{ steps.changes.outputs.vets }}"       == "true" ]] && modules+=(spring-petclinic-vets-service)
-            [[ "${{ steps.changes.outputs.visits }}"     == "true" ]] && modules+=(spring-petclinic-visits-service)
+            [[ "${{ steps.changes.outputs.admin }}"       == "true" ]] && modules+=(spring-petclinic-admin-server)
+            [[ "${{ steps.changes.outputs.api_gateway }}" == "true" ]] && modules+=(spring-petclinic-api-gateway)
+            [[ "${{ steps.changes.outputs.config }}"      == "true" ]] && modules+=(spring-petclinic-config-server)
+            [[ "${{ steps.changes.outputs.discovery }}"   == "true" ]] && modules+=(spring-petclinic-discovery-server)
+            [[ "${{ steps.changes.outputs.customers }}"   == "true" ]] && modules+=(spring-petclinic-customers-service)
+            [[ "${{ steps.changes.outputs.vets }}"        == "true" ]] && modules+=(spring-petclinic-vets-service)
+            [[ "${{ steps.changes.outputs.visits }}"      == "true" ]] && modules+=(spring-petclinic-visits-service)
           fi
 
           # Build the matrix JSON that GH Actions expects: { "include": [ {module, image_name}, ... ] }
