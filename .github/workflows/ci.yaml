@@ -4,32 +4,109 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-  
+
 permissions:
   contents: read
-  packages: write  
-  
+  packages: write
+
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.make-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show changed files
+        run: |
+            echo "HEAD: ${{ github.sha }}"
+            echo "BEFORE: ${{ github.event.before }}"
+            git --no-pager log --oneline -n 3
+            echo "---- changed files in this push range ----"
+            git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} || true
+            echo "------------------------------------------"
+
+      - name: Filter changed paths
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          base: ${{ github.event.before }}
+          ref:  ${{ github.sha }}
+          filters: |
+            # rebuild ALL services if these change
+            global:
+              - 'pom.xml'
+              - 'docker/**'
+              
+
+            admin:
+              - added|deleted|modified: 'spring-petclinic-admin-server/**'
+            api_gateway:
+              - added|deleted|modified: 'spring-petclinic-api-gateway/**'
+            config:
+              - added|deleted|modified: 'spring-petclinic-config-server/**'
+            discovery:
+              - added|deleted|modified: 'spring-petclinic-discovery-server/**'
+            customers:
+              - added|deleted|modified: 'spring-petclinic-customers-service/**'
+            vets:
+              - added|deleted|modified: 'spring-petclinic-vets-service/**'
+            visits:
+              - added|deleted|modified: 'spring-petclinic-visits-service/**'
+
+      - name: Build dynamic matrix
+        id: make-matrix
+        shell: bash
+        run: |
+          set -e
+
+          # If any "global" files changed, rebuild everything.
+          if [[ "${{ steps.changes.outputs.global }}" == "true" ]]; then
+            modules=(
+              spring-petclinic-admin-server
+              spring-petclinic-api-gateway
+              spring-petclinic-config-server
+              spring-petclinic-discovery-server
+              spring-petclinic-customers-service
+              spring-petclinic-vets-service
+              spring-petclinic-visits-service
+            )
+          else
+            modules=()
+            [[ "${{ steps.changes.outputs.admin }}"       == "true" ]] && modules+=(spring-petclinic-admin-server)
+            [[ "${{ steps.changes.outputs.api_gateway }}" == "true" ]] && modules+=(spring-petclinic-api-gateway)
+            [[ "${{ steps.changes.outputs.config }}"      == "true" ]] && modules+=(spring-petclinic-config-server)
+            [[ "${{ steps.changes.outputs.discovery }}"   == "true" ]] && modules+=(spring-petclinic-discovery-server)
+            [[ "${{ steps.changes.outputs.customers }}"   == "true" ]] && modules+=(spring-petclinic-customers-service)
+            [[ "${{ steps.changes.outputs.vets }}"        == "true" ]] && modules+=(spring-petclinic-vets-service)
+            [[ "${{ steps.changes.outputs.visits }}"      == "true" ]] && modules+=(spring-petclinic-visits-service)
+          fi
+
+          # Build the matrix JSON that GH Actions expects: { "include": [ {module, image_name}, ... ] }
+          if (( ${#modules[@]} == 0 )); then
+            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          json='{"include":['
+          sep=""
+          for m in "${modules[@]}"; do
+            json+="${sep}{\"module\":\"$m\",\"image_name\":\"$m\"}"
+            sep=","
+          done
+          json+=']}'
+          echo "matrix=$json" >> "$GITHUB_OUTPUT"
+
+
   ship-admin-server:
     name: Build and ship all services
+    needs: detect-changes
+    if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
     uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@docker-build-and-push
     strategy:
-        matrix:
-            include:
-                - module: spring-petclinic-admin-server
-                  image_name: spring-petclinic-admin-server
-                - module: spring-petclinic-api-gateway
-                  image_name: spring-petclinic-api-gateway
-                - module: spring-petclinic-config-server
-                  image_name: spring-petclinic-config-server
-                - module: spring-petclinic-discovery-server
-                  image_name: spring-petclinic-discovery-server
-                - module: spring-petclinic-customers-service
-                  image_name: spring-petclinic-customers-service
-                - module: spring-petclinic-vets-service
-                  image_name: spring-petclinic-vets-service
-                - module: spring-petclinic-visits-service
-                  image_name: spring-petclinic-visits-service
+        matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
     with:
       cr_link: ghcr.io/stefanfilkov
       image_name: ${{ matrix.image_name }}
