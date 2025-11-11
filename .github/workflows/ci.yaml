@@ -28,7 +28,7 @@ jobs:
             global:
               - 'pom.xml'
               - 'docker/**'
-              - '.github/workflows/**'
+              
 
             admin:
               - 'spring-petclinic-admin-server/**'
