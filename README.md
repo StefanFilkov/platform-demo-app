@@ -3,7 +3,7 @@
 Fork of **spring-petclinic-microservices** used as a simple workload to showcase **DevOps**, **containers**, **Kubernetes**, and **GitOps (Argo CD)**.
 
 What I demonstrate here:
-- Build & push images for each microservice via **GitHub Actions** (or **Azure DevOps**) using reusable templates from my `platform-pipelines` repo
+- Build & push images for each microservice via **GitHub Actions** using reusable templates from my `platform-pipelines` repo
 - Declarative deployment via **Argo CD**
 - Promotion by **PR**: dev → prod through the GitOps repo
 

@@ -1,23 +1,28 @@
-FROM eclipse-temurin:17 AS builder
-WORKDIR application
-ARG ARTIFACT_NAME
-COPY ${ARTIFACT_NAME}.jar application.jar
-RUN java -Djarmode=layertools -jar application.jar extract
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /src
+
+ARG MODULE
+ENV MODULE=${MODULE}
+
+COPY pom.xml .
+
+COPY ${MODULE}/pom.xml ${MODULE}/pom.xml
+
+RUN mvn -B -f ${MODULE}/pom.xml -DskipTests dependency:go-offline
+
+COPY . .
+
+RUN mvn -B -f ${MODULE}/pom.xml -DskipTests package
 
 
-FROM eclipse-temurin:17
-WORKDIR application
+FROM amazoncorretto:21-alpine
+WORKDIR /app
 
-ARG EXPOSED_PORT
-EXPOSE ${EXPOSED_PORT}
+ARG MODULE
+COPY --from=build /src/${MODULE}/target/*.jar /app/app.jar
 
-ENV SPRING_PROFILES_ACTIVE=docker
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app/app.jar"]
+    
 
-COPY --from=builder application/dependencies/ ./
-RUN true
-COPY --from=builder application/spring-boot-loader/ ./
-RUN true
-COPY --from=builder application/snapshot-dependencies/ ./
-RUN true
-COPY --from=builder application/application/ ./
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
+
