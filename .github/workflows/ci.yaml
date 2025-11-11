@@ -2,14 +2,91 @@ name: Ship GHCR
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, github-action-ci ]
   workflow_dispatch:
-  
+
 permissions:
   contents: read
-  packages: write  
-  
+  packages: write
+
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.make-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Filter changed paths
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            # rebuild ALL services if these change
+            global:
+              - 'pom.xml'
+              - 'docker/**'
+              - '.github/workflows/**'
+
+            admin:
+              - 'spring-petclinic-admin-server/**'
+            api_gateway:
+              - 'spring-petclinic-api-gateway/**'
+            config:
+              - 'spring-petclinic-config-server/**'
+            discovery:
+              - 'spring-petclinic-discovery-server/**'
+            customers:
+              - 'spring-petclinic-customers-service/**'
+            vets:
+              - 'spring-petclinic-vets-service/**'
+            visits:
+              - 'spring-petclinic-visits-service/**'
+
+      - name: Build dynamic matrix
+        id: make-matrix
+        shell: bash
+        run: |
+          set -e
+
+          # If any "global" files changed, rebuild everything.
+          if [[ "${{ steps.changes.outputs.global }}" == "true" ]]; then
+            modules=(
+              spring-petclinic-admin-server
+              spring-petclinic-api-gateway
+              spring-petclinic-config-server
+              spring-petclinic-discovery-server
+              spring-petclinic-customers-service
+              spring-petclinic-vets-service
+              spring-petclinic-visits-service
+            )
+          else
+            modules=()
+            [[ "${{ steps.changes.outputs.admin }}"      == "true" ]] && modules+=(spring-petclinic-admin-server)
+            [[ "${{ steps.changes.outputs.api_gateway }}"== "true" ]] && modules+=(spring-petclinic-api-gateway)
+            [[ "${{ steps.changes.outputs.config }}"     == "true" ]] && modules+=(spring-petclinic-config-server)
+            [[ "${{ steps.changes.outputs.discovery }}"  == "true" ]] && modules+=(spring-petclinic-discovery-server)
+            [[ "${{ steps.changes.outputs.customers }}"  == "true" ]] && modules+=(spring-petclinic-customers-service)
+            [[ "${{ steps.changes.outputs.vets }}"       == "true" ]] && modules+=(spring-petclinic-vets-service)
+            [[ "${{ steps.changes.outputs.visits }}"     == "true" ]] && modules+=(spring-petclinic-visits-service)
+          fi
+
+          # Build the matrix JSON that GH Actions expects: { "include": [ {module, image_name}, ... ] }
+          if (( ${#modules[@]} == 0 )); then
+            echo 'matrix={"include":[]}' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          json='{"include":['
+          sep=""
+          for m in "${modules[@]}"; do
+            json+="${sep}{\"module\":\"$m\",\"image_name\":\"$m\"}"
+            sep=","
+          done
+          json+=']}'
+          echo "matrix=$json" >> "$GITHUB_OUTPUT"
   ship-admin-server:
     name: Build and ship all services
     uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@docker-build-and-push
