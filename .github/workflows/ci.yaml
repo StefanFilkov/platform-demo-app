@@ -2,7 +2,7 @@ name: Ship GHCR
 
 on:
   push:
-    branches: [ main, github-action-ci ]
+    branches: [ main, path-filtering ]
   workflow_dispatch:
 
 permissions:
