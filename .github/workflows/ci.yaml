@@ -89,6 +89,8 @@ jobs:
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
   ship-admin-server:
     name: Build and ship all services
+    needs: detect-changes
+    if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
     uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@docker-build-and-push
     strategy:
         matrix:
