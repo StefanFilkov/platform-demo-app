@@ -18,6 +18,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          
+      - name: Show changed files (debug)
+        run: |
+            echo "HEAD: ${{ github.sha }}"
+            echo "BEFORE: ${{ github.event.before }}"
+            git --no-pager log --oneline -n 3
+            echo "---- changed files in this push range ----"
+            git --no-pager diff --name-only ${{ github.event.before }} ${{ github.sha }} || true
+            echo "------------------------------------------"
 
       - name: Filter changed paths
         id: changes
@@ -87,6 +96,8 @@ jobs:
           done
           json+=']}'
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
+
+
   ship-admin-server:
     name: Build and ship all services
     needs: detect-changes
