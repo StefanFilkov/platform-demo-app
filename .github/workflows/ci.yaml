@@ -32,8 +32,8 @@ jobs:
         id: changes
         uses: dorny/paths-filter@v3
         with:
-          base: ${{ steps.range.outputs.before }}
-          ref:  ${{ steps.range.outputs.sha }}
+          base: ${{ github.event.before }}
+          ref:  ${{ github.sha }}
           filters: |
             # rebuild ALL services if these change
             global:
