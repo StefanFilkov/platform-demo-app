@@ -2,7 +2,7 @@ name: Ship GHCR
 
 on:
   push:
-    branches: [ main, github-action-ci]
+    branches: [ main ]
   workflow_dispatch:
   
 permissions:
@@ -11,7 +11,7 @@ permissions:
   
 jobs:
   ship-admin-server:
-    name: Build and ship spring-petclinic-admin-server
+    name: Build and ship all services
     uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@docker-build-and-push
     strategy:
         matrix:
