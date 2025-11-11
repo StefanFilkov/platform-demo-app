@@ -93,22 +93,7 @@ jobs:
     if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
     uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@docker-build-and-push
     strategy:
-        matrix:
-            include:
-                - module: spring-petclinic-admin-server
-                  image_name: spring-petclinic-admin-server
-                - module: spring-petclinic-api-gateway
-                  image_name: spring-petclinic-api-gateway
-                - module: spring-petclinic-config-server
-                  image_name: spring-petclinic-config-server
-                - module: spring-petclinic-discovery-server
-                  image_name: spring-petclinic-discovery-server
-                - module: spring-petclinic-customers-service
-                  image_name: spring-petclinic-customers-service
-                - module: spring-petclinic-vets-service
-                  image_name: spring-petclinic-vets-service
-                - module: spring-petclinic-visits-service
-                  image_name: spring-petclinic-visits-service
+        matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
     with:
       cr_link: ghcr.io/stefanfilkov
       image_name: ${{ matrix.image_name }}
