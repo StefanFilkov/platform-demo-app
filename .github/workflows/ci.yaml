@@ -1,0 +1,26 @@
+name: Ship GHCR
+
+on:
+  push:
+    branches: [ main, github-action-ci]
+  workflow_dispatch:
+  
+permissions:
+  contents: read
+  packages: write  
+  
+jobs:
+  ship:
+    uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@docker-build-and-push
+    with:
+      cr_link: ghcr.io/stefanfilkov
+      image_name: spring-petclinic-admin-server
+      dockerfile: ./docker/Dockerfile
+      context: .
+      platforms: linux/amd64,linux/arm64
+      tags: "latest,${{ github.sha }}"
+      build_args: |
+        COMMIT_SHA=${{ github.sha }}
+        MODULE=spring-petclinic-admin-server
+    secrets:
+      GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
