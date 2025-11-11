@@ -40,19 +40,19 @@ jobs:
               
 
             admin:
-              - 'spring-petclinic-admin-server/**'
+              - added|deleted|modified: 'spring-petclinic-admin-server/**'
             api_gateway:
-              - 'spring-petclinic-api-gateway/**'
+              - added|deleted|modified: 'spring-petclinic-api-gateway/**'
             config:
-              - 'spring-petclinic-config-server/**'
+              - added|deleted|modified: 'spring-petclinic-config-server/**'
             discovery:
-              - 'spring-petclinic-discovery-server/**'
+              - added|deleted|modified: 'spring-petclinic-discovery-server/**'
             customers:
-              - 'spring-petclinic-customers-service/**'
+              - added|deleted|modified: 'spring-petclinic-customers-service/**'
             vets:
-              - 'spring-petclinic-vets-service/**'
+              - added|deleted|modified: 'spring-petclinic-vets-service/**'
             visits:
-              - 'spring-petclinic-visits-service/**'
+              - added|deleted|modified: 'spring-petclinic-visits-service/**'
 
       - name: Build dynamic matrix
         id: make-matrix
