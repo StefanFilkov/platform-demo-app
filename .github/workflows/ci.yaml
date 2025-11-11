@@ -2,7 +2,7 @@ name: Ship GHCR
 
 on:
   push:
-    branches: [ main, path-filtering ]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
