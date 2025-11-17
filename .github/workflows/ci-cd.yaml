@@ -104,7 +104,7 @@ jobs:
     name: Build and ship all services
     needs: detect-changes
     if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
-    uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@main
+    uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@master
     strategy:
         matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
     with:
