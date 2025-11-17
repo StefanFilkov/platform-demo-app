@@ -2,7 +2,7 @@ name: Ship GHCR
 
 on:
   push:
-    branches: [ main, cd, ci ]
+    branches: [ main, cd ]
   workflow_dispatch:
 
 permissions:
