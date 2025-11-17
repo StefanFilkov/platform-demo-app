@@ -99,7 +99,7 @@ jobs:
           json+=']}'
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
 
-          
+
   ship-admin-server:
     name: Build and ship all services
     needs: detect-changes
@@ -134,6 +134,7 @@ jobs:
       cr_repository: petclinic
       service_name: ${{ matrix.image_name }}
       image_tag: ${{ github.sha }}
-      gitops_repo: https://github.com/StefanFilkov/platform-gitops
+      gitops_repo: StefanFilkov/platform-gitops
+      manifest_file_path: applications/app-k8s/
     secrets:
       MANIFEST_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
