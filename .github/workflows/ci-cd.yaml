@@ -99,6 +99,7 @@ jobs:
           json+=']}'
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
 
+          
   ship-admin-server:
     name: Build and ship all services
     needs: detect-changes
