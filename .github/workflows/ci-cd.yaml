@@ -133,5 +133,6 @@ jobs:
       cr_repository: petclinic
       service_name: ${{ matrix.image_name }}
       image_tag: ${{ github.sha }}
+      gitops_repo: https://github.com/StefanFilkov/platform-gitops
     secrets:
       MANIFEST_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
