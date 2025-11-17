@@ -2,7 +2,7 @@ name: Ship GHCR
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, cd ]
   workflow_dispatch:
 
 permissions:
@@ -119,3 +119,20 @@ jobs:
         MODULE=${{ matrix.module }}
     secrets:
       GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy-updated-images:
+    name: Update manifests for built images
+    needs:
+      - detect-changes
+      - ship-admin-server
+    if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
+    strategy:
+      matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+    uses: ./.github/workflows/update-manifest-in-k8s-repo.yml
+    with:
+      cr_link: ghcr.io/stefanfilkov
+      cr_repository: petclinic
+      service_name: ${{ matrix.image_name }}
+      image_tag: ${{ github.sha }}
+    secrets:
+      MANIFEST_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
