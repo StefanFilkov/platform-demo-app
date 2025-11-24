@@ -132,7 +132,6 @@ jobs:
       contents: write
     with:
       cr_link: ghcr.io/stefanfilkov
-      cr_repository: petclinic
       service_name: ${{ matrix.image_name }}
       image_tag: ${{ github.sha }}
       gitops_repo: StefanFilkov/platform-gitops
