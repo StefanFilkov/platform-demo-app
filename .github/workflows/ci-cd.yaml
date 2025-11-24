@@ -140,3 +140,4 @@ jobs:
       gh_org: stefanfilkov
     secrets:
       MANIFEST_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      MANIFEST_REPO_PUSH_TOKEN: ${{ secrets.MANIFEST_REPO_PUSH_TOKEN }}
