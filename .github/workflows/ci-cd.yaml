@@ -128,6 +128,8 @@ jobs:
     strategy:
       matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
     uses: StefanFilkov/platform-pipelines/.github/workflows/deploy-argocd.yaml@argocd
+    permissions:
+      contents: write
     with:
       cr_link: ghcr.io/stefanfilkov
       cr_repository: petclinic
