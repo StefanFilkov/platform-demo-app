@@ -99,31 +99,31 @@ jobs:
           json+=']}'
           echo "matrix=$json" >> "$GITHUB_OUTPUT"
 
-  # ship-admin-server:
-  #   name: Build and ship all services
-  #   needs: detect-changes
-  #   if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
-  #   uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@master
-  #   strategy:
-  #       matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
-  #   with:
-  #     cr_link: ghcr.io/stefanfilkov
-  #     image_name: ${{ matrix.image_name }}
-  #     dockerfile: ./docker/Dockerfile
-  #     context: .
-  #     platforms: linux/amd64,linux/arm64
-  #     tags: "latest,${{ github.sha }}"
-  #     build_args: |
-  #       COMMIT_SHA=${{ github.sha }}
-  #       MODULE=${{ matrix.module }}
-  #   secrets:
-  #     GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ship-admin-server:
+    name: Build and ship all services
+    needs: detect-changes
+    if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
+    uses: StefanFilkov/platform-pipelines/.github/workflows/docker-build-and-push-to-ghcr.yaml@master
+    strategy:
+        matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
+    with:
+      cr_link: ghcr.io/stefanfilkov
+      image_name: ${{ matrix.image_name }}
+      dockerfile: ./docker/Dockerfile
+      context: .
+      platforms: linux/amd64,linux/arm64
+      tags: "latest,${{ github.sha }}"
+      build_args: |
+        COMMIT_SHA=${{ github.sha }}
+        MODULE=${{ matrix.module }}
+    secrets:
+      GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   deploy-updated-images:
     name: Update manifests for built images
     needs:
       - detect-changes
-      # - ship-admin-server
+      - ship-admin-server
     if: ${{ fromJSON(needs.detect-changes.outputs.matrix).include != null && fromJSON(needs.detect-changes.outputs.matrix).include[0] != null }}
     strategy:
       matrix: ${{ fromJSON(needs.detect-changes.outputs.matrix) }}
