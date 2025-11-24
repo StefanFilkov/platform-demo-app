@@ -136,7 +136,7 @@ jobs:
       service_name: ${{ matrix.image_name }}
       image_tag: ${{ github.sha }}
       gitops_repo: StefanFilkov/platform-gitops
-      manifest_file_path: applications/app-k8s/
+      manifest_file_path: applications/app-k8s/admin-server/admin-server.yaml
       gh_org: stefanfilkov
     secrets:
       MANIFEST_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
